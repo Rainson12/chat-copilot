@@ -259,6 +259,18 @@ public class ChatSkill
     }
 
     /// <summary>
+    /// Extract chat messages.
+    /// </summary>
+    [Description("Extract chat messages")]
+    public async Task<ChatMessage[]> GetChatHistoryAsync(
+        [Description("Chat ID to get messages from")] string chatId)
+    {
+        var messages = await this._chatMessageRepository.FindByChatIdAsync(chatId);
+        var sortedMessages = messages.OrderBy(m => m.Timestamp).ToArray();
+        return sortedMessages;
+    }
+
+    /// <summary>
     /// This is the entry point for getting a chat response. It manages the token limit, saves
     /// messages to memory, and fill in the necessary context variables for completing the
     /// prompt that will be rendered by the template engine.
@@ -427,7 +439,7 @@ public class ChatSkill
 
         // Need to extract this from the rendered prompt because Time and Date are calculated during render
         var systemChatContinuation = Regex.Match(renderedPrompt, PromptsOptions.SYSTEM_CHAT_CONTINUATION_REGEX).Value;
-        var promptView = new BotResponsePrompt(renderedPrompt, this._promptOptions.SystemDescription, this._promptOptions.SystemResponse, audience, userIntent, chatMemories, documentMemories, plannerDetails, chatHistory, systemChatContinuation);
+        var promptView = new BotResponsePrompt(renderedPrompt, this._promptOptions.SystemDescription, this._promptOptions.SystemResponse, audience, userIntent, chatMemories, documentMemories, plannerDetails, systemChatContinuation);
 
         // Calculate token usage of prompt template
         chatContext.Variables.Set(TokenUtilities.GetFunctionKey(chatContext.Logger, "SystemMetaPrompt")!, TokenUtilities.TokenCount(renderedPrompt).ToString(CultureInfo.InvariantCulture));
@@ -715,9 +727,34 @@ public class ChatSkill
     /// <returns>The created chat message</returns>
     private async Task<ChatMessage> StreamResponseToClient(string chatId, string userId, BotResponsePrompt prompt)
     {
-        // Create the stream
+        var history = await this.GetChatHistoryAsync(chatId);
         var chatCompletion = this._kernel.GetService<IChatCompletion>();
-        var stream = chatCompletion.GenerateMessageStreamAsync(chatCompletion.CreateNewChat(prompt.RawContent), this.CreateChatRequestSettings());
+        var chatHistory = chatCompletion.CreateNewChat(prompt.SystemPersona);
+        chatHistory.AddMessage(AuthorRole.System, prompt.PastMemories);
+
+        // skip first and last one (first message = welcome message)
+        foreach (var historyChat in history.Skip(1))
+        {
+            var role = new AuthorRole();
+            switch (historyChat.AuthorRole)
+            {
+                case ChatMessage.AuthorRoles.User:
+                    role = AuthorRole.User;
+                    break;
+                case ChatMessage.AuthorRoles.Bot:
+                    role = AuthorRole.Assistant;
+                    break;
+                case ChatMessage.AuthorRoles.Participant:
+                    role = AuthorRole.User;
+                    break;
+                default:
+                    break;
+            }
+            chatHistory.AddMessage(role, historyChat.Content);
+        }
+
+        //Create the stream
+        var stream = chatCompletion.GenerateMessageStreamAsync(chatHistory, this.CreateChatRequestSettings());
 
         // Create message on client
         var chatMessage = await this.CreateBotMessageOnClient(chatId, userId, JsonSerializer.Serialize(prompt), string.Empty);

@@ -38,12 +38,7 @@ public class BotResponsePrompt
     /// </summary>
     [JsonPropertyName("externalInformation")]
     public SemanticDependency<StepwiseThoughtProcess> ExternalInformation { get; set; }
-
-    /// <summary>
-    /// Most recent messages from chat history.
-    /// </summary>
-    [JsonPropertyName("chatHistory")]
-    public string ChatHistory { get; set; } = string.Empty;
+    
 
     /// <summary>
     /// Preamble to the LLM's response.
@@ -66,7 +61,6 @@ public class BotResponsePrompt
         string chatMemories,
         string documentMemories,
         SemanticDependency<StepwiseThoughtProcess> externalInformation,
-        string chatHistory,
         string systemChatContinuation
         )
     {
@@ -76,7 +70,6 @@ public class BotResponsePrompt
         this.UserIntent = userIntent;
         this.PastMemories = string.Join("\n", chatMemories, documentMemories).Trim();
         this.ExternalInformation = externalInformation;
-        this.ChatHistory = chatHistory;
         this.SystemChatContinuation = systemChatContinuation;
     }
 }
