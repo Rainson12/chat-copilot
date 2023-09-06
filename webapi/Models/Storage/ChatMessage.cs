@@ -186,7 +186,7 @@ public class ChatMessage : IStorageEntity
             content = (documentMessageContent != null) ? documentMessageContent.ToFormattedString() : "Uploaded documents";
         }
 
-        return $"[{this.Timestamp.ToString("G", CultureInfo.CurrentCulture)}] {this.UserName}: {content}";
+        return $"{content}";
     }
 
     /// <summary>
