@@ -459,6 +459,8 @@ public class ChatSkill
         chatContext.Variables.Set("chatContext", chatContextText);
 
         string systemPersona = string.Join("\n", this._promptOptions.SystemDescription, this._promptOptions.SystemResponse);
+        systemPersona = systemPersona.Replace("{{$knowledgeCutoff}}", this._promptOptions.KnowledgeCutoffDate);
+        systemPersona = systemPersona.Replace("{{TimeSkill.Now}}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
         string pastMemories = string.Join("\n", chatMemories, documentMemories).Trim();
 
         chatContext.ThrowIfFailed();
