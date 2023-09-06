@@ -742,8 +742,14 @@ public class ChatSkill
     {
         var chatCompletion = this._kernel.GetService<IChatCompletion>();
         var chatHistory = chatCompletion.CreateNewChat(systemPersona);
-        chatHistory.AddMessage(AuthorRole.System, pastMemories);
-        chatHistory.AddMessage(AuthorRole.System, planResult);
+        if (!string.IsNullOrEmpty(pastMemories))
+        {
+            chatHistory.AddMessage(AuthorRole.System, pastMemories);
+        }
+        if (!string.IsNullOrEmpty(planResult))
+        {
+            chatHistory.AddMessage(AuthorRole.System, planResult);
+        }
 
         // skip first (first message = welcome message)
         foreach (var historyChat in chatMessages)
