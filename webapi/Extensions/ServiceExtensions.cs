@@ -194,6 +194,25 @@ public static class CopilotChatServiceExtensions
                 break;
             }
 
+            case ChatStoreOptions.ChatStoreType.MariaDb:
+            {
+                if (chatStoreConfig.MariaDb == null)
+                {
+                    throw new InvalidOperationException("ChatStore:MariaDb is required when ChatStore:Type is 'MariaDb'");
+                }
+#pragma warning disable CA2000 // Dispose objects before losing scope - objects are singletons for the duration of the process and disposed when the process exits.
+                chatSessionStorageContext = new MariaDbContext<ChatSession>(
+                    chatStoreConfig.MariaDb.ConnectionString, "ChatSessions");
+                chatMessageStorageContext = new MariaDbContext<ChatMessage>(
+                    chatStoreConfig.MariaDb.ConnectionString, "ChatMessages");
+                chatMemorySourceStorageContext = new MariaDbContext<MemorySource>(
+                    chatStoreConfig.MariaDb.ConnectionString, "MemorySources");
+                chatParticipantStorageContext = new MariaDbContext<ChatParticipant>(
+                    chatStoreConfig.MariaDb.ConnectionString, "ChatParticipants");
+#pragma warning restore CA2000 // Dispose objects before losing scope
+                break;
+            }
+
             case ChatStoreOptions.ChatStoreType.Cosmos:
             {
                 if (chatStoreConfig.Cosmos == null)

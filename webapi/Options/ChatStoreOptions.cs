@@ -25,6 +25,11 @@ public class ChatStoreOptions
         Filesystem,
 
         /// <summary>
+        /// MariaDB based persistent chat store.
+        /// </summary>
+        MariaDb,
+
+        /// <summary>
         /// Azure CosmosDB based persistent chat store.
         /// </summary>
         Cosmos
@@ -40,6 +45,12 @@ public class ChatStoreOptions
     /// </summary>
     [RequiredOnPropertyValue(nameof(Type), ChatStoreType.Filesystem)]
     public FileSystemOptions? Filesystem { get; set; }
+
+    /// <summary>
+    /// Gets or sets the configuration for the MariaDb chat store.
+    /// </summary>
+    [RequiredOnPropertyValue(nameof(Type), ChatStoreType.MariaDb)]
+    public MariaDbOptions? MariaDb { get; set; }
 
     /// <summary>
     /// Gets or sets the configuration for the Azure CosmosDB chat store.

@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -108,6 +109,7 @@ public class ChatMessage : IStorageEntity
     /// <summary>
     /// Counts of total token usage used to generate bot response.
     /// </summary>
+    [NotMapped]
     public Dictionary<string, int>? TokenUsage { get; set; }
 
     /// <summary>
@@ -115,6 +117,15 @@ public class ChatMessage : IStorageEntity
     /// </summary>
     [JsonIgnore]
     public string Partition => this.ChatId;
+
+    /// <summary>
+    /// Constructor for EntityFramework initialization.
+    /// </summary>
+#pragma warning disable CS8618
+    internal ChatMessage()
+    {
+    }
+#pragma warning restore CS8618
 
     /// <summary>
     /// Create a new chat message. Timestamp is automatically generated.
