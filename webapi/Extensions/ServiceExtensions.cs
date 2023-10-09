@@ -201,13 +201,13 @@ public static class CopilotChatServiceExtensions
                     throw new InvalidOperationException("ChatStore:MariaDb is required when ChatStore:Type is 'MariaDb'");
                 }
 #pragma warning disable CA2000 // Dispose objects before losing scope - objects are singletons for the duration of the process and disposed when the process exits.
-                chatSessionStorageContext = new MariaDbContext<ChatSession>(
+                chatSessionStorageContext = new MariaDbRepository<ChatSession>(
                     chatStoreConfig.MariaDb.ConnectionString, "ChatSessions");
-                chatMessageStorageContext = new MariaDbContext<ChatMessage>(
+                chatMessageStorageContext = new MariaDbRepository<ChatMessage>(
                     chatStoreConfig.MariaDb.ConnectionString, "ChatMessages");
-                chatMemorySourceStorageContext = new MariaDbContext<MemorySource>(
+                chatMemorySourceStorageContext = new MariaDbRepository<MemorySource>(
                     chatStoreConfig.MariaDb.ConnectionString, "MemorySources");
-                chatParticipantStorageContext = new MariaDbContext<ChatParticipant>(
+                chatParticipantStorageContext = new MariaDbRepository<ChatParticipant>(
                     chatStoreConfig.MariaDb.ConnectionString, "ChatParticipants");
 #pragma warning restore CA2000 // Dispose objects before losing scope
                 break;
